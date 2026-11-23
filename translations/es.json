@@ -1,0 +1,38 @@
+{
+  "app": {
+    "name": "Costo de WhatsApp de Zenital",
+    "short_description": "Cuánto cobra Meta por WhatsApp: por ticket, por mes y por equipo.",
+    "long_description": "Estima cuánto te cobra Meta por los mensajes de WhatsApp que envían desde Zendesk tu equipo, los bots y los agentes de IA.\n\n**Dashboard (navegación izquierda, administradores)**\n- Costo promedio por ticket y costo mensual estimado ya restados los mensajes gratis de Meta, con la variación contra el período anterior.\n- Filtros y desgloses por formulario, marca, grupo, agente asignado, etiqueta, organización, campo personalizado, país del cliente y \"atendido por\" (solo IA, IA y después un agente, solo agentes).\n- Costo por país, número, remitente, semana y hora; tickets fuera de lo normal; exportación CSV.\n- Alerta de presupuesto mensual y comparación mes a mes con las facturas de Meta.\n- Cuentas grandes: la app avisa cuánto tarda el cálculo completo y puede estimar con una muestra al azar de tickets, con el margen de error en US$; la muestra se puede ampliar cuando quieras.\n\n**Panel del ticket (agentes)**\nCosto del ticket abierto y cómo se compara con el promedio de su formulario y su grupo.\n\n**Cómo se calcula**\nMensajes de WhatsApp enviados × tarifa de mensajes de servicio de Meta para el país del cliente (tarifas en USD vigentes desde el 1 de octubre de 2026). Los mensajes de los clientes son gratis. Es una estimación: las plantillas de marketing, las conversaciones gratis desde anuncios y los mensajes no entregados no se distinguen con los datos de Zendesk.\n\n**Acceso y almacenamiento de datos**\n- Lee, por la API de Zendesk y con los permisos del usuario conectado: tickets (canal, formulario, marca, grupo, asignado, organización, estado, etiquetas, valores de campos), historiales de conversación (hora y tipo de autor de cada mensaje; el texto no se guarda), nombres y teléfonos de los usuarios involucrados y los nombres de formularios, marcas, grupos, organizaciones y campos.\n- Los teléfonos se usan solo para saber el país del cliente y su tarifa. Los resultados guardados conservan ese país, nunca el teléfono ni el nombre del cliente.\n- Los resultados se guardan en el almacenamiento local del navegador de quien usa el dashboard. Opcionalmente, un administrador puede compartirlos con el equipo en un objeto personalizado de Zendesk (\"WhatsApp Cost (app data)\") de tu propia cuenta.\n- No se envía nada fuera de tu cuenta de Zendesk, salvo el mensaje que alguien escribe en **¿Necesitas ayuda?** (con su nombre, correo y, si lo deja marcado, la versión de la app, el idioma, el subdominio de Zendesk y el estado del último cálculo), que va al soporte de Zenital. Sin tokens de API, sin servidores externos, sin analítica.\n\nDisponible en español, inglés y portugués de Brasil.",
+    "installation_instructions": "1. Instala la app y abre **Costo de WhatsApp** desde la navegación izquierda. El dashboard es para administradores.\n2. Elige un período y haz clic en **Ver costo**. La primera vez lee el período y el anterior; si eso tarda, la app muestra el tiempo y ofrece una estimación más rápida con una muestra. Después solo lee lo que cambió.\n3. Ajustes opcionales: país por defecto (para tickets sin teléfono del cliente), cantidad de números de WhatsApp (solo si no se detectan), otros canales que son WhatsApp, presupuesto mensual, actualización al abrir y facturas de Meta. La mayoría se guarda desde el dashboard.\n4. Opcional: en **Ajustes > Compartir con el equipo**, un administrador puede guardar los resultados en un objeto personalizado de Zendesk (requiere Zendesk Suite Team o superior).\n5. Activa el **Modo de prueba** para presentar la app con datos simulados.",
+    "parameters": {
+      "default_market": {
+        "label": "País por defecto",
+        "helpText": "País o mercado de Meta para tickets sin teléfono del cliente, por ejemplo Argentina, México o Resto de Latinoamérica."
+      },
+      "business_numbers": {
+        "label": "Números de WhatsApp",
+        "helpText": "Cuántos números de WhatsApp usa la empresa. Meta regala 1.000 mensajes de servicio por mes a cada número."
+      },
+      "whatsapp_channels": {
+        "label": "Otros canales de WhatsApp",
+        "helpText": "Opcional. Etiquetas de canal separadas por coma para contar como WhatsApp cuando la app no lo detecta, como las muestra el diagnóstico del dashboard (por ejemplo native_messaging, any_channel / infobip)."
+      },
+      "demo_mode": {
+        "label": "Modo de prueba",
+        "helpText": "Muestra datos simulados de WhatsApp en el dashboard y en el panel del ticket, para demos y webinars. No se lee nada de esta cuenta. Desactivalo para ver datos reales."
+      },
+      "monthly_budget": {
+        "label": "Presupuesto mensual (USD)",
+        "helpText": "Opcional. El dashboard avisa cuando el costo mensual estimado llega al 90%. También se puede guardar desde el dashboard."
+      },
+      "meta_billing": {
+        "label": "Facturas de Meta",
+        "helpText": "Se completa desde el dashboard: lo que Meta facturó cada mes, como AAAA-MM=monto separado por comas (por ejemplo 2026-10=123.45)."
+      },
+      "auto_refresh_hours": {
+        "label": "Actualizar al abrir después de (horas)",
+        "helpText": "Opcional. Si el último cálculo es más viejo, al abrir el dashboard se lee lo nuevo. Vacío o 0: nunca."
+      }
+    }
+  }
+}

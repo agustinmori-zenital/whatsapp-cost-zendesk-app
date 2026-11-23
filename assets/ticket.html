@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Costo de este ticket</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="sidebar">
+  <div id="loading" class="side-loading" role="status" aria-live="polite">
+    <div class="progress indeterminate"><div class="progress-bar"></div></div>
+    <p class="muted small">Calculando el costo…</p>
+  </div>
+
+  <p id="demo-badge" class="demo-badge side-demo" title="Datos de ejemplo: no vienen de tu cuenta de Zendesk. Se desactiva en la configuración de la app." hidden>Modo de prueba · datos de ejemplo</p>
+
+  <section id="cost" class="side-card" hidden>
+    <h2>Costo de WhatsApp de este ticket</h2>
+    <p class="side-value" id="value">—</p>
+    <p class="side-formula" id="formula"></p>
+    <dl class="side-facts">
+      <div><dt>Enviados por tu equipo</dt><dd id="sent">—</dd></div>
+      <div><dt>Recibidos del cliente (gratis)</dt><dd id="received">—</dd></div>
+      <div><dt>País del cliente</dt><dd id="market">—</dd></div>
+    </dl>
+    <p id="note" class="side-note" hidden></p>
+    <div id="compare" class="side-compare" hidden></div>
+  </section>
+
+  <section id="not-wa" class="side-card muted-card" hidden>
+    <h2>Sin costo de WhatsApp</h2>
+    <p class="muted small">Este ticket no tiene mensajes de WhatsApp, así que Meta no cobra nada.</p>
+  </section>
+
+  <p id="error" class="side-error" role="alert" hidden></p>
+
+  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="i18n-dict.js"></script>
+  <script src="rates.js"></script>
+  <script src="counter.js"></script>
+  <script src="demo.js"></script>
+  <script src="share.js"></script>
+  <script src="ticket.js"></script>
+</body>
+</html>

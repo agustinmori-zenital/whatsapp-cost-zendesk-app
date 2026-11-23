@@ -1,0 +1,38 @@
+{
+  "app": {
+    "name": "Custo do WhatsApp da Zenital",
+    "short_description": "Quanto a Meta cobra pelo WhatsApp: por ticket, por mês e por equipe.",
+    "long_description": "Estime quanto a Meta cobra pelas mensagens de WhatsApp que sua equipe, os bots e os agentes de IA enviam pelo Zendesk.\n\n**Painel (navegação à esquerda, administradores)**\n- Custo médio por ticket e custo mensal estimado já descontadas as mensagens gratuitas da Meta, com a variação em relação ao período anterior.\n- Filtros e detalhamentos por formulário, marca, grupo, agente atribuído, tag, organização, campo personalizado, país do cliente e \"atendido por\" (só IA, IA e depois um agente, só agentes).\n- Custo por país, número, remetente, semana e hora; tickets fora do normal; exportação CSV.\n- Alerta de orçamento mensal e comparação mês a mês com as faturas da Meta.\n- Contas grandes: o app avisa quanto tempo leva o cálculo completo e pode estimar com uma amostra aleatória de tickets, com a margem de erro em US$; a amostra pode ser ampliada quando quiser.\n\n**Painel do ticket (agentes)**\nCusto do ticket aberto e como ele se compara com a média do seu formulário e do seu grupo.\n\n**Como é calculado**\nMensagens de WhatsApp enviadas × tarifa de mensagens de serviço da Meta para o país do cliente (tarifas em USD vigentes desde 1º de outubro de 2026). As mensagens dos clientes são gratuitas. É uma estimativa: modelos de marketing, conversas gratuitas a partir de anúncios e mensagens não entregues não podem ser distinguidos com os dados do Zendesk.\n\n**Acesso e armazenamento de dados**\n- Lê, pela API do Zendesk e com as permissões do usuário conectado: tickets (canal, formulário, marca, grupo, atribuído, organização, status, tags, valores de campos), históricos de conversa (horário e tipo de autor de cada mensagem; o texto não é guardado), nomes e telefones dos usuários envolvidos e os nomes de formulários, marcas, grupos, organizações e campos.\n- Os telefones são usados só para saber o país do cliente e a tarifa. Os resultados salvos guardam esse país, nunca o telefone nem o nome do cliente.\n- Os resultados ficam no armazenamento local do navegador de quem usa o painel. Opcionalmente, um administrador pode compartilhá-los com a equipe em um objeto personalizado do Zendesk (\"WhatsApp Cost (app data)\") na sua própria conta.\n- Nada é enviado para fora da sua conta Zendesk, exceto a mensagem que alguém escreve em **Precisa de ajuda?** (com nome, e-mail e, se deixar marcado, a versão do app, o idioma, o subdomínio do Zendesk e o status do último cálculo), que vai para o suporte da Zenital. Sem tokens de API, sem servidores externos, sem analytics.\n\nDisponível em português do Brasil, inglês e espanhol.",
+    "installation_instructions": "1. Instale o app e abra **Custo do WhatsApp** na navegação à esquerda. O painel é para administradores.\n2. Escolha um período e clique em **Ver custo**. Na primeira vez lê o período e o anterior; se isso demorar, o app mostra o tempo e oferece uma estimativa mais rápida com uma amostra. Depois só lê o que mudou.\n3. Ajustes opcionais: país padrão (para tickets sem telefone do cliente), quantidade de números de WhatsApp (só se não forem detectados), outros canais que são WhatsApp, orçamento mensal, atualização ao abrir e faturas da Meta. A maioria pode ser salva no painel.\n4. Opcional: em **Ajustes > Compartilhar com a equipe**, um administrador pode salvar os resultados em um objeto personalizado do Zendesk (requer Zendesk Suite Team ou superior).\n5. Ative o **Modo de teste** para apresentar o app com dados simulados.",
+    "parameters": {
+      "default_market": {
+        "label": "País padrão",
+        "helpText": "País ou mercado da Meta para tickets sem telefone do cliente, por exemplo Brasil, México ou Resto da América Latina."
+      },
+      "business_numbers": {
+        "label": "Números de WhatsApp",
+        "helpText": "Quantos números de WhatsApp a empresa usa. A Meta dá 1.000 mensagens de serviço grátis por mês a cada número."
+      },
+      "whatsapp_channels": {
+        "label": "Outros canais de WhatsApp",
+        "helpText": "Opcional. Rótulos de canal separados por vírgula para contar como WhatsApp quando o app não o detecta, como mostra o diagnóstico do painel (por exemplo native_messaging, any_channel / infobip)."
+      },
+      "demo_mode": {
+        "label": "Modo de teste",
+        "helpText": "Mostra dados simulados de WhatsApp no painel e no painel do ticket, para demos e webinars. Nada é lido desta conta. Desative para ver dados reais."
+      },
+      "monthly_budget": {
+        "label": "Orçamento mensal (USD)",
+        "helpText": "Opcional. O painel avisa quando o custo mensal estimado chega a 90%. Também pode ser salvo no painel."
+      },
+      "meta_billing": {
+        "label": "Faturas da Meta",
+        "helpText": "Preenchido pelo painel: o que a Meta faturou a cada mês, como AAAA-MM=valor separado por vírgulas (por exemplo 2026-10=123.45)."
+      },
+      "auto_refresh_hours": {
+        "label": "Atualizar ao abrir depois de (horas)",
+        "helpText": "Opcional. Se o último cálculo for mais antigo, ao abrir o painel lê o que é novo. Vazio ou 0: nunca."
+      }
+    }
+  }
+}

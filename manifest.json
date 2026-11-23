@@ -1,0 +1,61 @@
+{
+  "name": "WhatsApp Cost by Zenital",
+  "author": {
+    "name": "Zenital",
+    "email": "delivery.zenter@zenital.co",
+    "url": "https://www.zenital.co"
+  },
+  "defaultLocale": "en",
+  "private": true,
+  "singleInstall": true,
+  "location": {
+    "support": {
+      "nav_bar": {
+        "url": "assets/iframe.html"
+      },
+      "ticket_sidebar": {
+        "url": "assets/ticket.html",
+        "flexible": true
+      }
+    }
+  },
+  "version": "1.0.0",
+  "frameworkVersion": "2.0",
+  "parameters": [
+    {
+      "name": "default_market",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "business_numbers",
+      "type": "number",
+      "required": false,
+      "default": 1
+    },
+    {
+      "name": "whatsapp_channels",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "demo_mode",
+      "type": "checkbox"
+    },
+    {
+      "name": "monthly_budget",
+      "type": "number",
+      "required": false
+    },
+    {
+      "name": "meta_billing",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "auto_refresh_hours",
+      "type": "number",
+      "required": false
+    }
+  ]
+}

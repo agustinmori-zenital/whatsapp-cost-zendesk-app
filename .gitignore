@@ -1,0 +1,7 @@
+# Build output: zips are attached to GitHub Releases instead of committed.
+dist/
+releases/
+tmp/
+*.zip
+.DS_Store
+node_modules/

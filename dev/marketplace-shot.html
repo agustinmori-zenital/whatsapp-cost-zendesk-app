@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Marketplace screenshot 3 (1024x768): the dashboard's unusual tickets next to the ticket sidebar. Dev only. -->
+<html lang="en"><head><meta charset="utf-8"><title>shot</title>
+<style>
+  body { margin: 0; width: 1024px; height: 768px; overflow: hidden; display: grid; grid-template-columns: 624px 400px; background: #f3f5f9; font: 14px system-ui, sans-serif; }
+  .dash { width: 624px; height: 768px; border: 0; }
+  .side { padding: 24px 24px 24px 8px; }
+  .panel { background: #fff; border: 1px solid #e3e7ee; border-radius: 14px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(16,24,40,.06); }
+  .panel h3 { margin: 0 0 10px; font-size: 13px; color: #5b6875; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .panel iframe { width: 100%; height: 640px; border: 0; }
+</style></head>
+<body>
+  <iframe class="dash" src="index.html?demo=1&locale=en-US&autorun=1&scroll=outliers-card"></iframe>
+  <div class="side"><div class="panel"><h3>Ticket sidebar</h3><iframe id="side"></iframe></div></div>
+  <script>
+    // The panel loads once the dashboard has saved its averages (same origin storage).
+    setTimeout(function () { document.getElementById('side').src = 'ticket-preview.html?demo=1&ticket=775108&locale=en-US'; }, 9000);
+  </script>
+</body></html>

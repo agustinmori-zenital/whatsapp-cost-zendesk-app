@@ -1,0 +1,38 @@
+{
+  "app": {
+    "name": "WhatsApp Cost by Zenital",
+    "short_description": "See what Meta charges for WhatsApp messages: per ticket, per month and per team.",
+    "long_description": "Estimate what Meta charges for the WhatsApp messages your team, bots and AI agents send from Zendesk.\n\n**Dashboard (left navigation, admins)**\n- Average cost per ticket and estimated monthly cost after Meta's free messages, with the change vs. the previous period.\n- Filters and breakdowns by ticket form, brand, group, assigned agent, tag, organization, custom field, customer country and \"handled by\" (AI only, AI then an agent, agents only).\n- Cost by country, business number, sender, week and hour; out-of-the-ordinary tickets; CSV export.\n- Monthly budget alert and a month-by-month comparison with Meta's invoices.\n- Large accounts: the app says how long a full calculation takes and can estimate from a random sample of tickets instead, with the margin of error in US$; the sample can be extended at any time.\n\n**Ticket sidebar (agents)**\nCost of the open ticket and how it compares with the average of its form and group.\n\n**How it's calculated**\nOutbound WhatsApp messages × Meta's service-message rate for the customer's country (USD list rates in effect since October 1, 2026). Customer messages are free. It is an estimate: marketing templates, free entry points from ads and undelivered messages can't be told apart from Zendesk data.\n\n**Data access and storage**\n- Reads, through the Zendesk API and with the signed-in user's permissions: tickets (channel, form, brand, group, assignee, organization, status, tags, custom field values), ticket conversation logs (time and author type of each message; message text is not kept), names and phone numbers of the users involved, and the names of forms, brands, groups, organizations and ticket fields.\n- Phone numbers are used only to find the customer's country for Meta's rate. Stored results keep that country, never the customer's phone or name.\n- Results are kept in the browser's local storage of the person who runs the dashboard. Optionally, an admin can share them with the team in a Zendesk custom object (\"WhatsApp Cost (app data)\") in your own account.\n- Nothing is sent outside your Zendesk account, except the message a user writes in **Need help?** (with their name, email and, if they leave it ticked, the app version, language, Zendesk subdomain and last calculation status), which goes to Zenital's support. No API tokens, no external servers, no analytics.\n\nAvailable in English, Spanish and Brazilian Portuguese.",
+    "installation_instructions": "1. Install the app and open **WhatsApp Cost** from the left navigation. The dashboard is meant for admins.\n2. Choose a period and click **See cost**. The first run reads the period and the previous one; when that takes long, the app shows the time and offers a quicker estimate from a sample. Later runs read only what changed.\n3. Optional settings: default country (for tickets whose customer phone is unknown), number of WhatsApp business numbers (only if they can't be detected), extra channels to count as WhatsApp, monthly budget, refresh on open, and Meta invoices. Most can be saved from the dashboard.\n4. Optional: in **Settings > Share with the team**, an admin can save results in a Zendesk custom object (needs Zendesk Suite Team or above).\n5. Turn on **Demo mode** to present the app with simulated data.",
+    "parameters": {
+      "default_market": {
+        "label": "Default country",
+        "helpText": "Country or Meta market used when the customer phone is unknown, e.g. Argentina, México or Rest of Latin America."
+      },
+      "business_numbers": {
+        "label": "WhatsApp business numbers",
+        "helpText": "How many WhatsApp numbers the business uses. Meta gives 1,000 free service messages per number per month."
+      },
+      "demo_mode": {
+        "label": "Demo mode",
+        "helpText": "Shows simulated WhatsApp data in the dashboard and the ticket panel, for demos and webinars. Nothing is read from this account. Turn it off to see real data."
+      },
+      "whatsapp_channels": {
+        "label": "Other WhatsApp channels",
+        "helpText": "Optional. Comma-separated channel labels to count as WhatsApp when the app does not detect it, as shown by the dashboard diagnostic (e.g. native_messaging, any_channel / infobip)."
+      },
+      "monthly_budget": {
+        "label": "Monthly budget (USD)",
+        "helpText": "Optional. The dashboard warns when the estimated monthly WhatsApp cost reaches 90% of it. Can also be saved from the dashboard."
+      },
+      "meta_billing": {
+        "label": "Meta invoices",
+        "helpText": "Filled in from the dashboard: what Meta billed each month, as YYYY-MM=amount, comma-separated (e.g. 2026-10=123.45). Used to compare the estimate with the real invoice."
+      },
+      "auto_refresh_hours": {
+        "label": "Refresh on open after (hours)",
+        "helpText": "Optional. When an admin opens the dashboard and the last calculation is older than this, it reads what is new since then. Empty or 0: never."
+      }
+    }
+  }
+}

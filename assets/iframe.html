@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Costo de WhatsApp</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo-small.png" alt="" width="40" height="40" class="brand-logo">
+      <div>
+        <h1>Costo de WhatsApp <span id="demo-badge" class="demo-badge" title="Datos de ejemplo: no vienen de tu cuenta de Zendesk. Se desactiva en la configuración de la app." hidden>Modo de prueba</span></h1>
+        <p class="muted">Cuánto te cobra Meta por los mensajes de WhatsApp que envía tu equipo.</p>
+      </div>
+    </div>
+    <form id="form" class="controls" novalidate>
+      <div class="segmented" role="group" aria-label="Período">
+        <button type="button" class="seg" data-days="7" aria-pressed="false">7 días</button>
+        <button type="button" class="seg" data-days="30" aria-pressed="true">30 días</button>
+        <button type="button" class="seg" data-days="90" aria-pressed="false">90 días</button>
+        <button type="button" class="seg" data-days="custom" aria-pressed="false">Otro</button>
+      </div>
+      <div id="custom-range" class="custom-range" hidden>
+        <label class="field">Desde <input type="date" id="from" required></label>
+        <label class="field">Hasta <input type="date" id="to" required></label>
+      </div>
+      <button type="submit" id="run" class="btn primary">Ver costo</button>
+      <button type="button" id="stop" class="btn" hidden>Cancelar</button>
+    </form>
+  </header>
+
+  <main>
+    <section id="loading" class="card loading" hidden>
+      <div class="loading-head">
+        <div>
+          <p class="loading-title" id="loading-title">Calculando…</p>
+          <p id="loading-text" class="muted small" role="status" aria-live="polite"></p>
+        </div>
+        <div class="loading-right">
+          <span class="loading-pct" id="loading-pct">0%</span>
+          <span class="muted small" id="loading-eta"></span>
+        </div>
+      </div>
+      <div class="progress steps-bar" id="progress" role="progressbar" aria-label="Progreso del cálculo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-seg" style="flex: 40"><div class="progress-bar" id="progress-bar-1"></div></div>
+        <div class="progress-seg" style="flex: 60"><div class="progress-bar" id="progress-bar-2"></div></div>
+      </div>
+      <ol class="steps">
+        <li class="step" id="step-1"><span class="step-dot" aria-hidden="true"></span><span><strong>1. Buscar tickets</strong><span class="step-meta" id="step-1-meta">Revisa los tickets actualizados del período</span></span></li>
+        <li class="step" id="step-2"><span class="step-dot" aria-hidden="true"></span><span><strong>2. Leer conversaciones</strong><span class="step-meta" id="step-2-meta">Cuenta los mensajes de cada ticket</span></span></li>
+      </ol>
+    </section>
+    <section id="plan" class="card plan" aria-labelledby="plan-title" hidden>
+      <h2 id="plan-title">¿Calcular todo o estimar con una muestra?</h2>
+      <p id="plan-text" class="muted"></p>
+      <div class="slider">
+        <label for="plan-size">Tickets en la muestra</label>
+        <input type="range" id="plan-size" min="100" step="50" aria-describedby="plan-size-text">
+        <p id="plan-size-text" class="slider-value" aria-live="polite"></p>
+      </div>
+      <div class="actions">
+        <button type="button" id="plan-sample" class="btn primary">Estimar con la muestra</button>
+        <button type="button" id="plan-full" class="btn">Calcular todo</button>
+        <button type="button" id="plan-cancel" class="btn ghost">Cancelar</button>
+      </div>
+    </section>
+    <p id="error" class="error" role="alert" hidden></p>
+
+    <section id="empty" class="card empty">
+      <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 15v-3m4 3V8m4 7v-5"/></svg></div>
+      <h2>Elige un período y haz clic en "Ver costo"</h2>
+      <p class="muted">Calculamos también el período anterior para comparar. La primera vez puede tardar varios minutos; después solo se actualiza lo nuevo.</p>
+    </section>
+
+    <div id="dashboard" hidden>
+      <p id="freshness" class="freshness muted small" hidden></p>
+      <section id="sample" class="card sample" aria-labelledby="sample-title" hidden>
+        <div class="sample-head">
+          <div>
+            <h2 id="sample-title">Estimación con una muestra</h2>
+            <p id="sample-text" class="muted"></p>
+          </div>
+          <p class="sample-margin"><span class="small muted">Margen de error</span><strong id="sample-margin">—</strong></p>
+        </div>
+        <div class="slider">
+          <label for="sample-size">Sumar a la muestra</label>
+          <input type="range" id="sample-size" min="50" step="50" aria-describedby="sample-size-text">
+          <p id="sample-size-text" class="slider-value" aria-live="polite"></p>
+        </div>
+        <div class="actions">
+          <button type="button" id="sample-extend" class="btn primary">Extender la muestra</button>
+          <button type="button" id="sample-all" class="btn">Calcular todo</button>
+        </div>
+      </section>
+      <div id="budget-alert" class="notice warn" role="status" hidden>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm1 15h-2v-2h2v2Zm0-4h-2V9h2v4Z"/></svg>
+        <span id="budget-alert-text"></span>
+      </div>
+      <div id="diagnostic" class="notice diagnostic" hidden>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+        <div><p id="diagnostic-text"></p><ul id="diagnostic-list"></ul></div>
+      </div>
+      <section id="filters" class="filters" aria-label="Filtros">
+        <span class="filters-label">Filtrar</span>
+        <label class="filter" data-dim="form" hidden><span>Formulario</span><select></select></label>
+        <label class="filter" data-dim="brand" hidden><span>Marca</span><select></select></label>
+        <label class="filter" data-dim="group" hidden><span>Grupo</span><select></select></label>
+        <label class="filter" data-dim="assignee" hidden><span>Agente asignado</span><select></select></label>
+        <label class="filter" data-dim="tag" hidden><span>Etiqueta</span><select></select></label>
+        <label class="filter" data-dim="attention" hidden><span>Atendido por</span><select></select></label>
+        <button type="button" id="clear-filters" class="btn ghost" hidden>Quitar filtros</button>
+      </section>
+      <p id="filter-note" class="notice" role="status" aria-live="polite" hidden></p>
+
+      <div class="summary">
+        <p class="headline" id="headline"></p>
+        <button type="button" id="export" class="btn">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>
+          Descargar tickets (CSV)
+        </button>
+      </div>
+
+      <section class="kpis" aria-label="Resumen">
+        <article class="kpi hero">
+          <h2><span class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16v10H4zM4 11h16M8 15h3"/></svg></span>Costo por ticket</h2>
+          <p class="kpi-value" id="kpi-ticket">—</p>
+          <p class="kpi-sub" id="kpi-ticket-sub"></p>
+          <p class="delta" id="kpi-ticket-delta"></p>
+        </article>
+        <article class="kpi">
+          <h2><span class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 5h14v15H5zM5 9h14M9 3v4m6-4v4"/></svg></span>Costo por mes</h2>
+          <p class="kpi-value" id="kpi-month">—</p>
+          <p class="kpi-sub" id="kpi-month-sub"></p>
+          <p class="delta" id="kpi-month-delta"></p>
+        </article>
+        <article class="kpi">
+          <h2><span class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 19l1.3-3.9A8 8 0 1 1 9 18.7L5 19z"/></svg></span>Tickets de WhatsApp</h2>
+          <p class="kpi-value" id="kpi-tickets">—</p>
+          <p class="kpi-sub" id="kpi-tickets-sub"></p>
+          <p class="delta" id="kpi-tickets-delta"></p>
+        </article>
+      </section>
+
+      <section class="stats" aria-label="Más datos">
+        <div class="stat"><span class="stat-label">Mensajes enviados</span><span class="stat-value" id="stat-sent">—</span><span class="stat-sub" id="stat-sent-sub"></span></div>
+        <div class="stat"><span class="stat-label">Respondido por bots</span><span class="stat-value" id="stat-bots">—</span><span class="stat-sub" id="stat-bots-sub"></span></div>
+        <div class="stat"><span class="stat-label">País detectado</span><span class="stat-value" id="stat-detected">—</span><span class="stat-sub" id="stat-detected-sub"></span></div>
+        <div class="stat"><span class="stat-label">Proyección anual</span><span class="stat-value" id="stat-year">—</span><span class="stat-sub" id="stat-year-sub"></span></div>
+      </section>
+
+      <div class="grid">
+        <section class="card chart-card">
+          <div class="card-head">
+            <div>
+              <h2>¿Cuánto cuesta cada ticket?</h2>
+              <p class="muted small">La mayoría de los tickets cae cerca del promedio. Los naranjas cuestan mucho más de lo normal.</p>
+            </div>
+            <ul class="legend" aria-label="Leyenda">
+              <li><span class="sw sw-bar"></span>Tickets</li>
+              <li><span class="sw sw-out"></span>Fuera de lo normal</li>
+            </ul>
+          </div>
+          <div id="chart" class="chart"></div>
+          <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+        </section>
+
+        <section class="card">
+          <h2>¿Dónde se gasta?</h2>
+          <p class="muted small">Según el país del cliente. Cada país tiene su tarifa.</p>
+          <ul id="markets" class="bars"></ul>
+        </section>
+      </div>
+
+      <section class="card" id="breakdown-card">
+        <div class="card-head">
+          <div>
+            <h2>Desglose</h2>
+            <p class="muted small">Costo por formulario, marca, grupo, agente, etiqueta, campo o tipo de atención. Haz clic en una fila para filtrar por ella.</p>
+          </div>
+          <label class="field inline">Ver por
+            <select id="dimension"></select>
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="table breakdown">
+            <thead><tr><th scope="col">Nombre</th><th scope="col" class="num">Tickets</th><th scope="col" class="num">Costo</th><th scope="col" class="num">% del costo</th><th scope="col" class="num">Por ticket</th><th scope="col" class="num">Enviados por ticket</th><th scope="col" class="num">Por ticket vs. anterior</th></tr></thead>
+            <tbody id="breakdown"></tbody>
+          </table>
+        </div>
+        <button type="button" id="breakdown-more" class="btn ghost" hidden></button>
+        <p id="breakdown-note" class="muted small"></p>
+      </section>
+
+      <section class="card chart-card">
+        <div class="card-head">
+          <div>
+            <h2>Costo por semana</h2>
+            <p class="muted small">Costo de los mensajes enviados cada semana, sin descontar los gratis. Las barras claras son semanas incompletas.</p>
+          </div>
+        </div>
+        <div id="weekly" class="chart weekly"></div>
+        <div id="weekly-tooltip" class="tooltip" role="tooltip" hidden></div>
+      </section>
+
+      <section class="card chart-card" id="heatmap-card">
+        <div class="card-head">
+          <div>
+            <h2>¿Cuándo se gasta?</h2>
+            <p class="muted small">Costo de los mensajes enviados por día y hora (hora de tu navegador). Más oscuro, más costo.</p>
+          </div>
+        </div>
+        <div id="heatmap" class="chart heatmap"></div>
+        <div id="heatmap-tooltip" class="tooltip" role="tooltip" hidden></div>
+      </section>
+
+      <div class="grid even">
+        <section class="card">
+          <h2>Costo por número de WhatsApp</h2>
+          <p class="muted small" id="numbers-note">Meta regala 1.000 mensajes por mes a cada número.</p>
+          <ul id="numbers-list" class="bars"></ul>
+        </section>
+
+        <section class="card">
+          <h2>¿Quién envía más mensajes?</h2>
+          <p class="muted small">Agentes y bots que más costo generan en el período.</p>
+          <ul id="authors" class="bars"></ul>
+        </section>
+      </div>
+
+      <section class="card" id="outliers-card">
+        <div class="card-head">
+          <div>
+            <h2>Tickets fuera de lo normal</h2>
+            <p class="muted small" id="outlier-note"></p>
+          </div>
+          <span class="badge" id="outlier-count"></span>
+        </div>
+        <ul id="outliers" class="ticket-list"></ul>
+        <button type="button" id="outliers-more" class="btn ghost" hidden></button>
+        <p id="demo-note" class="notice" role="status" hidden></p>
+      </section>
+
+      <section class="card" id="billing-card">
+        <div class="card-head">
+          <div>
+            <h2>Estimado vs. factura de Meta</h2>
+            <p class="muted small">Carga lo que Meta te cobró cada mes (WhatsApp Manager → Facturación) para ver cuánto se acerca la estimación. Meses calendario completos, sin filtros, ya restados los mensajes gratis.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th scope="col">Mes</th><th scope="col" class="num">Enviados</th><th scope="col" class="num">Estimado</th><th scope="col" class="num">Facturado por Meta (US$)</th><th scope="col" class="num">Diferencia</th></tr></thead>
+            <tbody id="billing"></tbody>
+          </table>
+        </div>
+        <p id="billing-note" class="muted small"></p>
+      </section>
+
+      <details class="card" id="settings-card">
+        <summary><h2>Ajustes</h2></summary>
+        <p id="unknown-note" class="notice" hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>
+          <span></span>
+        </p>
+        <h3 class="settings-title">Cálculo</h3>
+        <div class="settings">
+          <label class="field">País a usar cuando no sabemos el del cliente
+            <select id="default-market"><option value="">El más común</option></select>
+          </label>
+          <label class="field">Cantidad de números de WhatsApp (si no se detectan)
+            <input type="number" id="numbers" min="1" step="1" value="1">
+          </label>
+          <label class="field">Otros canales que son WhatsApp (separados por coma)
+            <input type="text" id="channels" placeholder="ej.: native_messaging" autocomplete="off" spellcheck="false">
+            <span class="muted small">Solo si tu WhatsApp no aparece. Al cambiarlo, haz clic en "Ver costo" de nuevo.</span>
+          </label>
+        </div>
+        <h3 class="settings-title">Alertas y actualización</h3>
+        <div class="settings">
+          <label class="field">Presupuesto mensual de WhatsApp (US$)
+            <input type="number" id="budget" min="0" step="1" placeholder="Sin presupuesto" inputmode="decimal">
+            <span class="muted small">Avisa cuando el costo por mes se acerca o lo supera.</span>
+          </label>
+          <label class="field">Actualizar al abrir si los datos tienen más de (horas)
+            <input type="number" id="auto-refresh" min="0" step="1" placeholder="Nunca">
+            <span class="muted small">Al abrir el dashboard, lee solo lo nuevo desde el último cálculo. 0 o vacío: nunca.</span>
+          </label>
+        </div>
+        <div class="save-market">
+          <button type="button" id="save-market" class="btn primary" hidden></button>
+          <p id="save-market-note" class="muted small" role="status" aria-live="polite"></p>
+        </div>
+        <p class="muted small">Estos ajustes son para todo el equipo: el panel de cada ticket usa el país y los canales guardados.</p>
+        <h3 class="settings-title">Tus preferencias</h3>
+        <div class="settings">
+          <label class="field">Idioma
+            <select id="lang">
+              <option value="">Automático (el de tu perfil de Zendesk)</option>
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="pt-BR">Português (Brasil)</option>
+            </select>
+            <span class="muted small">Solo para ti, en este navegador.</span>
+          </label>
+        </div>
+        <div class="share-box">
+          <h3>Compartir con el equipo</h3>
+          <p id="share-status" class="muted small" role="status" aria-live="polite">Revisando…</p>
+          <button type="button" id="share-btn" class="btn" hidden></button>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary><h2>Cómo se calcula</h2></summary>
+        <ul class="explain">
+          <li>Contamos los mensajes de WhatsApp que envían tu equipo, los bots y las automatizaciones. Los mensajes que escriben los clientes son gratis.</li>
+          <li>Cada mensaje enviado se cobra con la tarifa de Meta del país del cliente (<span id="rates-date"></span>).</li>
+          <li>El costo por mes resta 1.000 mensajes gratis por cada número de WhatsApp. El costo por ticket no los resta.</li>
+          <li>La comparación es contra el período anterior del mismo largo.</li>
+          <li>Con filtros, el costo por mes es la parte del total que generan esos tickets: los mensajes gratis de Meta son por número, no por formulario o grupo.</li>
+          <li>Una conversación es una ventana de 24 horas: si el cliente vuelve a escribir más tarde, cuenta como otra. "Atendido por": solo IA o bots, IA y después un agente, o solo agentes.</li>
+          <li>Desde el 1 de octubre de 2026, Meta cobra cada respuesta y cada plantilla de utilidad con la misma tarifa, así que se cuentan igual. Las plantillas de marketing tienen otra tarifa y no las distinguimos.</li>
+          <li>No sabemos qué conversaciones empezaron desde un anuncio de WhatsApp (gratis hasta 7 días) ni qué mensajes no se entregaron (Meta no los cobra). Para el monto exacto, mira la facturación de Meta en WhatsApp Manager.</li>
+        </ul>
+      </details>
+    </div>
+
+    <section class="card help" id="help" aria-labelledby="help-title">
+      <div class="help-head">
+        <div>
+          <h2 id="help-title">¿Necesitas ayuda?</h2>
+          <p class="muted">Escríbenos y el equipo de Zenital te responde por correo.</p>
+        </div>
+        <div class="help-links">
+          <button type="button" id="help-open" class="btn">Contáctanos</button>
+          <a class="ext-link" href="https://www.zendesk.com/in/marketplace/partners/5473/" target="_blank" rel="noopener noreferrer" title="Se abre en una pestaña nueva">Zenital, partner de Zendesk <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6m0-6-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+          <a class="ext-link" href="https://www.zenital.co" target="_blank" rel="noopener noreferrer" title="Se abre en una pestaña nueva">zenital.co <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6m0-6-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+        </div>
+      </div>
+      <form id="help-form" class="help-form" hidden novalidate>
+        <div class="settings">
+          <label class="field">Tu nombre <input type="text" id="help-name" autocomplete="name" required></label>
+          <label class="field">Tu correo <input type="email" id="help-email" autocomplete="email" required></label>
+        </div>
+        <label class="field">¿En qué te ayudamos?
+          <textarea id="help-message" rows="4" required></textarea>
+        </label>
+        <label class="check"><input type="checkbox" id="help-tech" checked> Incluir datos técnicos (versión de la app, idioma, cuenta de Zendesk y estado del último cálculo). Nunca datos de tus clientes.</label>
+        <div class="help-actions">
+          <button type="submit" id="help-send" class="btn primary">Enviar</button>
+          <button type="button" id="help-cancel" class="btn ghost">Cancelar</button>
+          <p id="help-status" class="muted small" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+  </main>
+  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="i18n-dict.js"></script>
+  <script src="rates.js"></script>
+  <script src="counter.js"></script>
+  <script src="demo.js"></script>
+  <script src="share.js"></script>
+  <script src="chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
